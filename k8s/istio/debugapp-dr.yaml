@@ -1,0 +1,17 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: debugapp-dr
+  namespace: istio-system
+spec:
+  host: debugapp.test
+  subsets:
+    - labels:
+        app: debugapp
+      name: latest
+  trafficPolicy:
+    outlierDetection:
+      baseEjectionTime: 30s
+      consecutiveErrors: 5
+      interval: 3m
+      maxEjectionPercent: 25

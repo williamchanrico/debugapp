@@ -1,0 +1,66 @@
+.PHONY: build run push stop test clean all
+
+NAME          := debugapp
+VERSION       := $(shell git describe --tags --abbrev=0)
+REVISION      := $(shell git rev-parse --short HEAD)
+BIN_DIRECTORY := ./bin
+
+APP_NAME     := $(NAME)
+APP_VERSION  := $(VERSION)
+APP_REVISION := $(REVISION)
+APP_LDFLAGS  := -X 'main.version=$(APP_VERSION)' -X 'main.revision=$(APP_REVISION)'
+
+DOCKER_IMAGE_TAG      := williamchanrico/$(NAME)
+DOCKER_IMAGE_VERSION  := $(VERSION)
+DOCKER_CONTAINER_NAME := $(NAME)
+
+.DEFAULT_GOAL := help
+
+# HELP
+# This will output the help for each task
+# Thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
+.PHONY: help
+help: ## This help
+	@echo "Commands:"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "    \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+# GOLANG TASKS
+# Build the Go app
+.PHONY: go-build
+go-build: main.go  ## Build the app (linux, use go-cross-build for other platforms)
+	GO111MODULE=off go build -o $(BIN_DIRECTORY)/$(APP_NAME) -ldflags "$(APP_LDFLAGS)"
+
+.PHONY: go-cross-build
+go-cross-build: ## Build the app for multiple platform
+	@mkdir -p $(BIN_DIRECTORY) | true
+	@# darwin
+	@for arch in "amd64" "386"; do \
+		CGO_ENABLED=0 GOOS=darwin GOARCH=$${arch} make go-build; \
+		sleep 0.5; \
+		tar cf $(BIN_DIRECTORY)/$(APP_NAME)_$(APP_VERSION)_darwin_$${arch}.tar $(BIN_DIRECTORY)/$(APP_NAME); \
+	done;
+	@# linux
+	@for arch in "amd64" "386" "arm64"; do \
+		CGO_ENABLED=0 GOOS=linux GOARCH=$${arch} make go-build; \
+		sleep 0.5; \
+		tar cf $(BIN_DIRECTORY)/$(APP_NAME)_$(APP_VERSION)_linux_$${arch}.tar $(BIN_DIRECTORY)/$(APP_NAME); \
+	done;
+
+# DOCKER TASKS
+# Build the container
+.PHONY: docker-build
+docker-build: ## Build the container
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make go-build; \
+	docker build -t $(DOCKER_IMAGE_TAG):$(DOCKER_IMAGE_VERSION) -t $(DOCKER_IMAGE_TAG):latest .
+
+.PHONY: docker-run
+docker-run: ## Run container
+	docker run -d -p 8080:80 --name $(DOCKER_CONTAINER_NAME) $(DOCKER_IMAGE_TAG):$(DOCKER_IMAGE_VERSION)
+
+.PHONY: docker-push
+docker-push: ## Push image
+	docker push $(DOCKER_IMAGE_TAG)
+
+.PHONY: docker-stop
+docker-stop: ## Stop container
+	docker rm -f $(DOCKER_CONTAINER_NAME);

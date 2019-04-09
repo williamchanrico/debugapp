@@ -1,0 +1,86 @@
+#
+# If you only want a single pod
+#
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: debugapp
+  labels:
+     app: debugapp
+spec:
+  containers:
+    - image: williamchanrico/debugapp:latest
+      imagePullPolicy: Always
+      name: debugapp
+  restartPolicy: Always
+
+#
+# If you want a whole setup (testing namespace, deployment, loadbalancer svc)
+# Check istio directory for istio related objects
+#
+
+# ---
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: testing
+#   labels:
+#     istio-injection: enabled
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: debugapp
+#   labels:
+#     app: debugapp
+#   annotations:
+#     sidecar.istio.io/inject: "true"
+#     cloud.google.com/load-balancer-type: "Internal"
+# spec:
+#   type: LoadBalancer
+#   ports:
+#     - port: 80
+#       name: http
+#       targetPort: 80
+#     - port: 50051
+#       name: grpc
+#   selector:
+#     app: debugapp
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: debugapp
+#   labels:
+#     app: debugapp
+#   namespace: testing
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: debugapp
+#   template:
+#     metadata:
+#       annotations:
+#         sidecar.istio.io/inject: "true"
+#         # traffic.sidecar.istio.io/excludeOutboundIPRanges: 10.255.0.0/16
+#       labels:
+#         app: debugapp
+#     spec:
+#       containers:
+#         - name: debugapp
+#           image: williamchanrico/debugapp:latest
+#           ports:
+#             - containerPort: 80
+#             - containerPort: 50051
+#           imagePullPolicy: Always
+#           resources:
+#             limits:
+#               memory: "256Mi"
+#               cpu: "400m"
+#             requests:
+#               memory: "100Mi"
+#               cpu: "100m"
+

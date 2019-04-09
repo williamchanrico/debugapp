@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: debugapp-gateway
+  namespace: istio-system
+spec:
+  selector:
+    app: debugapp-ingressgateway
+    istio: debugapp-ingressgateway
+  servers:
+    - hosts:
+        - "*"
+      port:
+        name: http-test
+        number: 80
+        protocol: HTTP

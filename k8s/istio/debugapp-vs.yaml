@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: debugapp-vs
+  namespace: istio-system
+spec:
+  gateways:
+    - debugapp-gateway
+  hosts:
+    - "*"
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            port:
+              number: 80
+            host: debugapp.testing.svc.cluster.local
