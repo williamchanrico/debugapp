@@ -4,7 +4,7 @@ metadata:
   name: debugapp-dr
   namespace: istio-system
 spec:
-  host: debugapp.test
+  host: debugapp
   subsets:
     - labels:
         app: debugapp
