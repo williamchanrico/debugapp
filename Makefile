@@ -1,4 +1,4 @@
-.PHONY: build run push stop test clean all
+.PHONY: test clean all
 
 NAME          := debugapp
 VERSION       := $(shell git describe --tags --abbrev=0)
