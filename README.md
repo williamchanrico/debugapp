@@ -1,5 +1,7 @@
 # Debug App
 
+[![Build Status](https://cloud.drone.io/api/badges/williamchanrico/debugapp/status.svg)](https://cloud.drone.io/williamchanrico/debugapp)
+
 Simple docker image and k8s template for debugging purposes (the app also hosts a simple HTTP server on port 80)
 
 ## K8s and Istio Support

@@ -31,7 +31,7 @@ go-build: main.go  ## Build the app (linux, use go-cross-build for other platfor
 	GO111MODULE=off go build -o $(BIN_DIRECTORY)/$(APP_NAME) -ldflags "$(APP_LDFLAGS)"
 
 .PHONY: go-cross-build
-go-cross-build: ## Build the app for multiple platform
+go-cross-build: ## Build the app for multiple platforms
 	@mkdir -p $(BIN_DIRECTORY) | true
 	@# darwin
 	@for arch in "amd64" "386"; do \
