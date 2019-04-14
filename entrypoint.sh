@@ -14,4 +14,4 @@ cat <<-EOF >>~/.bashrc
 	echo ""
 EOF
 
-/bin/debugapp -port ${DEBUGAPP_PORT:-80}
+exec /bin/debugapp -port ${DEBUGAPP_PORT:-80}
