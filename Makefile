@@ -1,9 +1,17 @@
 .PHONY: test clean all
 
 NAME          := debugapp
-VERSION       := $(shell git describe --tags --abbrev=0)
-REVISION      := $(shell git rev-parse --short HEAD)
 BIN_DIRECTORY := ./bin
+REVISION      := $(shell git rev-parse --short HEAD 2>/dev/null)
+VERSION       := $(shell git describe --tags --abbrev=0 2>/dev/null)
+
+ifndef REVISION
+	override REVISION = asdfjkl
+endif
+
+ifndef VERSION
+	override VERSION = 0.1.0
+endif
 
 APP_NAME     := $(NAME)
 APP_VERSION  := $(VERSION)
@@ -30,6 +38,11 @@ help: ## This help
 go-build: main.go  ## Build the app (linux, use go-cross-build for other platforms)
 	GO111MODULE=off go build -o $(BIN_DIRECTORY)/$(APP_NAME) -ldflags "$(APP_LDFLAGS)"
 
+.PHONY: go-run
+go-run:  ## Run the app
+	make go-build
+	$(BIN_DIRECTORY)/$(APP_NAME) -port 8080
+
 .PHONY: go-cross-build
 go-cross-build: ## Build the app for multiple platforms
 	@mkdir -p $(BIN_DIRECTORY) | true
@@ -50,12 +63,14 @@ go-cross-build: ## Build the app for multiple platforms
 # Build the container
 .PHONY: docker-build
 docker-build: ## Build the container
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make go-build; \
+	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make go-build; \
 	docker build -t $(DOCKER_IMAGE_TAG):$(DOCKER_IMAGE_VERSION) -t $(DOCKER_IMAGE_TAG):latest .
 
 .PHONY: docker-run
 docker-run: ## Run container
-	docker run -d -p 8080:80 --name $(DOCKER_CONTAINER_NAME) $(DOCKER_IMAGE_TAG):$(DOCKER_IMAGE_VERSION)
+	docker run -dit -p 8080:80 --name $(DOCKER_CONTAINER_NAME) $(DOCKER_IMAGE_TAG):$(DOCKER_IMAGE_VERSION)
+	@docker exec -it $(DOCKER_CONTAINER_NAME) /bin/bash
+	@make docker-stop || true
 
 .PHONY: docker-push
 docker-push: ## Push image
@@ -63,4 +78,4 @@ docker-push: ## Push image
 
 .PHONY: docker-stop
 docker-stop: ## Stop container
-	docker rm -f $(DOCKER_CONTAINER_NAME);
+	@docker rm -f $(DOCKER_CONTAINER_NAME) 2>/dev/null || true
