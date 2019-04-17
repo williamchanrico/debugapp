@@ -38,10 +38,13 @@ spec:
 #   type: LoadBalancer
 #   ports:
 #     - port: 80
-#       name: http
+#       name: http-debugapp
 #       targetPort: 80
+#     - port: 443
+#       name: https-debugapp
+#       targetPort: 443
 #     - port: 50051
-#       name: grpc
+#       name: grpc-debugapp
 #   selector:
 #     app: debugapp
 # ---
@@ -70,13 +73,13 @@ spec:
 #           image: williamchanrico/debugapp:latest
 #           ports:
 #             - containerPort: 80
+#             - containerPort: 443
 #             - containerPort: 50051
 #           imagePullPolicy: Always
 #           resources:
 #             limits:
-#               memory: "256Mi"
-#               cpu: "400m"
+#               memory: "512Mi"
+#               cpu: "200m"
 #             requests:
 #               memory: "100Mi"
-#               cpu: "100m"
-
+#               cpu: "50m"
