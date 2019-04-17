@@ -6,7 +6,7 @@ REVISION      := $(shell git rev-parse --short HEAD 2>/dev/null)
 VERSION       := $(shell git describe --tags --abbrev=0 2>/dev/null)
 
 ifndef REVISION
-	override REVISION = asdfjkl
+	override REVISION = none
 endif
 
 ifndef VERSION
@@ -41,23 +41,24 @@ go-build: main.go  ## Build the app (linux, use go-cross-build for other platfor
 .PHONY: go-run
 go-run:  ## Run the app
 	make go-build
-	$(BIN_DIRECTORY)/$(APP_NAME) -port 8080
+	$(BIN_DIRECTORY)/$(APP_NAME) --http-port 8080 --https-port 8443
 
 .PHONY: go-cross-build
 go-cross-build: ## Build the app for multiple platforms
-	@mkdir -p $(BIN_DIRECTORY) | true
+	@mkdir -p $(BIN_DIRECTORY) || true
 	@# darwin
 	@for arch in "amd64" "386"; do \
 		CGO_ENABLED=0 GOOS=darwin GOARCH=$${arch} make go-build; \
 		sleep 0.5; \
-		tar cf $(BIN_DIRECTORY)/$(APP_NAME)_$(APP_VERSION)_darwin_$${arch}.tar $(BIN_DIRECTORY)/$(APP_NAME); \
+		tar czf $(BIN_DIRECTORY)/$(APP_NAME)_$(APP_VERSION)_darwin_$${arch}.tar.gz $(BIN_DIRECTORY)/$(APP_NAME); \
 	done;
 	@# linux
 	@for arch in "amd64" "386" "arm64"; do \
 		CGO_ENABLED=0 GOOS=linux GOARCH=$${arch} make go-build; \
 		sleep 0.5; \
-		tar cf $(BIN_DIRECTORY)/$(APP_NAME)_$(APP_VERSION)_linux_$${arch}.tar $(BIN_DIRECTORY)/$(APP_NAME); \
+		tar czf $(BIN_DIRECTORY)/$(APP_NAME)_$(APP_VERSION)_linux_$${arch}.tar.gz $(BIN_DIRECTORY)/$(APP_NAME); \
 	done;
+	@rm -rf $(BIN_DIRECTORY)/$(APP_NAME)
 
 # DOCKER TASKS
 # Build the container
@@ -68,6 +69,7 @@ docker-build: ## Build the container
 
 .PHONY: docker-run
 docker-run: ## Run container
+	@make docker-stop || true
 	docker run -dit -p 8080:80 --name $(DOCKER_CONTAINER_NAME) $(DOCKER_IMAGE_TAG):$(DOCKER_IMAGE_VERSION)
 	@docker exec -it $(DOCKER_CONTAINER_NAME) /bin/bash
 	@make docker-stop || true

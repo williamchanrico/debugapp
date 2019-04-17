@@ -1,7 +1,3 @@
-#
-# If you only want a single pod
-#
-
 ---
 apiVersion: v1
 kind: Pod

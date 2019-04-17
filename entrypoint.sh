@@ -8,10 +8,12 @@ cat <<-EOF >>~/.bashrc
 	echo "|____/ \\\\___|_.__/ \\\\__,_|\\\\__, /_/   \\\\_\\\\ .__/| .__/ "
 	echo "                        |___/        |_|   |_|    "
 	echo "                                  "
-	echo "Welcome to DebugApp Testing Centre"
+	echo "Welcome to DebugApp!"
 	echo ""
-	echo "Simple HTTP server is listening on the port you specified (default: 80)"
+	echo "Simple HTTP and HTTPS server are served for debugging purposes"
 	echo ""
 EOF
 
-exec /bin/debugapp -port ${DEBUGAPP_PORT:-80}
+exec /bin/debugapp \
+	--http-port ${DEBUGAPP_HTTP_PORT:-80} \
+	--https-port ${DEBUGAPP_HTTPS_PORT:-443}
