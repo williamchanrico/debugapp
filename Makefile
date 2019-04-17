@@ -50,13 +50,17 @@ go-cross-build: ## Build the app for multiple platforms
 	@for arch in "amd64" "386"; do \
 		CGO_ENABLED=0 GOOS=darwin GOARCH=$${arch} make go-build; \
 		sleep 0.5; \
-		tar czf $(BIN_DIRECTORY)/$(APP_NAME)_$(APP_VERSION)_darwin_$${arch}.tar.gz $(BIN_DIRECTORY)/$(APP_NAME); \
+		cd $(BIN_DIRECTORY); \
+		tar czf $(APP_NAME)_$(APP_VERSION)_darwin_$${arch}.tar.gz $(APP_NAME); \
+		cd ..; \
 	done;
 	@# linux
 	@for arch in "amd64" "386" "arm64"; do \
 		CGO_ENABLED=0 GOOS=linux GOARCH=$${arch} make go-build; \
 		sleep 0.5; \
-		tar czf $(BIN_DIRECTORY)/$(APP_NAME)_$(APP_VERSION)_linux_$${arch}.tar.gz $(BIN_DIRECTORY)/$(APP_NAME); \
+		cd $(BIN_DIRECTORY); \
+		tar czf $(APP_NAME)_$(APP_VERSION)_linux_$${arch}.tar.gz $(APP_NAME); \
+		cd ..; \
 	done;
 	@rm -rf $(BIN_DIRECTORY)/$(APP_NAME)
 
