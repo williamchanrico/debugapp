@@ -1,6 +1,7 @@
 FROM alpine:3.9
 
 RUN apk update && apk add --no-cache \
+	ca-certificates \
 	bash \
 	sudo \
 	jq \
@@ -23,7 +24,8 @@ RUN apk update && apk add --no-cache \
 	busybox-extras
 
 COPY entrypoint.sh .
-COPY bin/install-to-container/httpstat /bin/
+COPY bin/install-to-container/httpstat /bin/httpstat
 COPY bin/debugapp /bin/debugapp
 
-ENTRYPOINT ["./entrypoint.sh"]
+WORKDIR /root
+ENTRYPOINT ["/entrypoint.sh"]
