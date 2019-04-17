@@ -4,7 +4,29 @@
 
 `docker pull williamchanrico/debugapp:latest`
 
-Simple docker image and k8s template for debugging purposes (the app also hosts a simple HTTP server on port 80)
+Simple docker image and k8s template for debugging purposes (debugapp also hosts simple HTTP & HTTPS servers)
+
+```json
+$ curl -H 'Host: localhost' http://127.0.0.1/
+{
+  "host": "localhost",
+  "method": "GET",
+  "uri": "/",
+  "httpVersion": "1.1",
+  "time": "2019-04-17T16:09:36.195490849Z",
+  "remoteAddr": "127.0.0.1:40592",
+  "tls": false,
+  "header": {
+    "Accept": [
+      "*/*"
+    ],
+    "User-Agent": [
+      "curl/7.64.0"
+    ]
+  },
+  "message": "Hello, you've reached DebugApp!"
+}
+```
 
 ## K8s and Istio Support
 
