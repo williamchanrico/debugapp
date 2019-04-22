@@ -21,7 +21,8 @@ RUN apk update && apk add --no-cache \
 	redis \
 	postgresql-client \
 	net-tools \
-	busybox-extras
+	busybox-extras \
+	mysql-client
 
 COPY entrypoint.sh .
 COPY bin/install-to-container/httpstat /bin/httpstat
