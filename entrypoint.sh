@@ -14,6 +14,16 @@ cat <<-EOF >>~/.bashrc
 	echo ""
 EOF
 
+# Enable ssh daemon on 'root' user using password 'root'
+if [ -n "$DEBUGAPP_ENABLE_SSHD" ]; then
+	cat <<-EOF >>~/.bashrc
+		echo "SSH Daemon server has been enabled. You can access this container"
+		echo "via SSH on root user using 'root' as the password."
+		echo ""
+	EOF
+	/usr/sbin/sshd
+fi
+
 exec /bin/debugapp \
-	--http-port ${DEBUGAPP_HTTP_PORT:-80} \
-	--https-port ${DEBUGAPP_HTTPS_PORT:-443}
+	--http-port "${DEBUGAPP_HTTP_PORT:-80}" \
+	--https-port "${DEBUGAPP_HTTPS_PORT:-443}"
