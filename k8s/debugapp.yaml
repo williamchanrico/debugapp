@@ -1,85 +1,91 @@
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: debugapp
-  labels:
-     app: debugapp
-spec:
-  containers:
-    - image: williamchanrico/debugapp:latest
-      imagePullPolicy: Always
-      name: debugapp
-  restartPolicy: Always
+# ---
+# apiVersion: v1
+# kind: Pod
+# metadata:
+#   name: debugapp
+#   labels:
+#     app: debugapp
+# spec:
+#   containers:
+#     - image: williamchanrico/debugapp:latest
+#       imagePullPolicy: Always
+#       name: debugapp
+#   restartPolicy: Always
 
 #
 # If you want a whole setup (testing namespace, deployment, loadbalancer svc)
 # Check istio directory for istio related objects
 #
 
-# ---
-# apiVersion: v1
-# kind: Namespace
-# metadata:
-#   name: testing
-#   labels:
-#     istio-injection: enabled
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: debugapp
-#   labels:
-#     app: debugapp
-#   annotations:
-#     sidecar.istio.io/inject: "true"
-#     cloud.google.com/load-balancer-type: "Internal"
-# spec:
-#   type: LoadBalancer
-#   ports:
-#     - port: 80
-#       name: http-debugapp
-#       targetPort: 80
-#     - port: 443
-#       name: https-debugapp
-#       targetPort: 443
-#     - port: 50051
-#       name: grpc-debugapp
-#   selector:
-#     app: debugapp
-# ---
-# apiVersion: apps/v1
-# kind: Deployment
-# metadata:
-#   name: debugapp
-#   labels:
-#     app: debugapp
-#   namespace: testing
-# spec:
-#   replicas: 1
-#   selector:
-#     matchLabels:
-#       app: debugapp
-#   template:
-#     metadata:
-#       annotations:
-#         sidecar.istio.io/inject: "true"
-#         # traffic.sidecar.istio.io/excludeOutboundIPRanges: 10.255.0.0/16
-#       labels:
-#         app: debugapp
-#     spec:
-#       containers:
-#         - name: debugapp
-#           image: williamchanrico/debugapp:latest
-#           ports:
-#             - containerPort: 80
-#             - containerPort: 443
-#             - containerPort: 50051
-#           imagePullPolicy: Always
-#           resources:
-#             limits:
-#               memory: "512Mi"
-#               cpu: "200m"
-#             requests:
-#               memory: "100Mi"
-#               cpu: "50m"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: debugapp
+  labels:
+    istio-injection: enabled
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: debugapp
+  labels:
+    app: debugapp
+  annotations:
+    cloud.google.com/load-balancer-type: "Internal"
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 22
+      name: ssh-debugapp
+      targetPort: 22
+    - port: 80
+      name: http-debugapp
+      targetPort: 80
+    - port: 443
+      name: https-debugapp
+      targetPort: 443
+    - port: 50051
+      name: grpc-debugapp
+  selector:
+    app: debugapp
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: debugapp
+  labels:
+    app: debugapp
+  namespace: debugapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: debugapp
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+        # traffic.sidecar.istio.io/excludeOutboundIPRanges: 10.255.0.0/16
+      labels:
+        app: debugapp
+    spec:
+      containers:
+        - name: debugapp
+          image: williamchanrico/debugapp:1.1.0
+          env:
+            - name: "DEBUGAPP_ENABLE_SSHD"
+              value: "true"
+          ports:
+            - containerPort: 22
+            - containerPort: 80
+            - containerPort: 443
+            - containerPort: 50051
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+            requests:
+              memory: "50Mi"
+              cpu: "50m"
