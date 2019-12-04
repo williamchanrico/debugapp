@@ -1,7 +1,6 @@
 FROM alpine:3.9
 LABEL maintainer="William Chanrico <williamchanrico@gmail.com>"
 
-
 RUN apk update && apk add --no-cache \
 	openssh \
 	bash \
