@@ -12,10 +12,12 @@ cat <<-EOF >>~/.bashrc
 	echo ""
 	echo "Simple HTTP and HTTPS server are served for debugging purposes"
 	echo ""
+	echo "Custom installed binaries in /usr/local/bin below:"
+	ls /usr/local/bin
 EOF
 
 # Enable ssh daemon on 'root' user using password 'root'
-if [ -n "$DEBUGAPP_ENABLE_SSHD" ]; then
+if [ -n "$DEBUGAPP_ENABLE_SSH" ]; then
 	cat <<-EOF >>~/.bashrc
 		echo "SSH Daemon server has been enabled. You can access this container"
 		echo "via SSH on root user using 'root' as the password."
@@ -24,6 +26,4 @@ if [ -n "$DEBUGAPP_ENABLE_SSHD" ]; then
 	/usr/sbin/sshd
 fi
 
-exec /bin/debugapp \
-	--http-port "${DEBUGAPP_HTTP_PORT:-80}" \
-	--https-port "${DEBUGAPP_HTTPS_PORT:-443}"
+exec /usr/local/bin/debugapp "$@"

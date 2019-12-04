@@ -74,7 +74,7 @@ spec:
         - name: debugapp
           image: williamchanrico/debugapp:1.1.0
           env:
-            - name: "DEBUGAPP_ENABLE_SSHD"
+            - name: "DEBUGAPP_ENABLE_SSH"
               value: "true"
           ports:
             - containerPort: 22
