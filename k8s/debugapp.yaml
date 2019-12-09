@@ -72,7 +72,7 @@ spec:
     spec:
       containers:
         - name: debugapp
-          image: williamchanrico/debugapp:1.1.0
+          image: williamchanrico/debugapp:1.2.0
           env:
             - name: "DEBUGAPP_ENABLE_SSH"
               value: "true"
