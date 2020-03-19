@@ -1,0 +1,71 @@
+FROM ubuntu:18.04
+LABEL maintainer="William Chanrico <williamchanrico@gmail.com>"
+
+ADD sources.list /etc/apt/sources.list
+
+RUN apt-get update && \
+    apt-get install -yq \
+    ca-certificates \
+    software-properties-common \
+    bind9utils \
+    cpustat \
+    curl \
+    redis-server \
+    postgresql-client \
+    dnsutils \
+    ethtool \
+    htop \
+    iperf \
+    iproute2 \
+    iptables \
+    jq \
+    lsb-release \
+    lsof \
+    make \
+    net-tools \
+    netcat-openbsd \
+    openssl \
+    tcpdump \
+    tree \
+    unzip \
+    vim \
+    wget \
+    gcc \
+    bash \
+    sudo \
+    openssh-client \
+    openssh-server \
+    # Clean
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Configure ssh
+RUN mkdir /var/run/sshd \
+    && sed -i s/PermitRootLogin.*/PermitRootLogin\ no/ /etc/ssh/sshd_config \
+    && sed -i s/PermitEmptyPasswords.*/PermitEmptyPasswords\ yes/ /etc/ssh/sshd_config \
+    && sed -ie 's/#Port 22/Port 22/g' /etc/ssh/sshd_config \
+    && sed -ri 's/#HostKey \/etc\/ssh\/ssh_host_key/HostKey \/etc\/ssh\/ssh_host_key/g' /etc/ssh/sshd_config \
+    && sed -ir 's/#HostKey \/etc\/ssh\/ssh_host_rsa_key/HostKey \/etc\/ssh\/ssh_host_rsa_key/g' /etc/ssh/sshd_config \
+    && sed -ir 's/#HostKey \/etc\/ssh\/ssh_host_dsa_key/HostKey \/etc\/ssh\/ssh_host_dsa_key/g' /etc/ssh/sshd_config \
+    && sed -ir 's/#HostKey \/etc\/ssh\/ssh_host_ecdsa_key/HostKey \/etc\/ssh\/ssh_host_ecdsa_key/g' /etc/ssh/sshd_config \
+    && sed -ir 's/#HostKey \/etc\/ssh\/ssh_host_ed25519_key/HostKey \/etc\/ssh\/ssh_host_ed25519_key/g' /etc/ssh/sshd_config \
+    && /usr/bin/ssh-keygen -A \
+    && ssh-keygen -t rsa -b 4096 -f  /etc/ssh/ssh_host_key -N ""
+
+RUN useradd -m -s /bin/bash developer \
+    && echo 'developer:' >>/root/passwdfile \
+    && echo "root:123root789" >>/root/passwdfile \
+    && chpasswd -c SHA512 </root/passwdfile \
+    && rm /root/passwdfile
+
+# Custom stand-alone binaries
+COPY bin/httpstat-v1.0.0 /usr/local/bin/httpstat
+COPY bin/grpcurl-v1.4.0 /usr/local/bin/grpcurl
+COPY bin/debugapp /usr/local/bin/debugapp
+
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+
+WORKDIR /root
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["--http-port", "80", "--https-port", "443"]
