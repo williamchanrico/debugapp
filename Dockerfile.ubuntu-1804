@@ -33,6 +33,7 @@ RUN apt-get update && \
     gcc \
     bash \
     sudo \
+    inetutils-ping \
     openssh-client \
     openssh-server \
     # Clean
