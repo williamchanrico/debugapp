@@ -1,7 +1,7 @@
 kind: pipeline
 name: default
 steps:
-  - name: docker
+  - name: alpine
     image: plugins/docker
     settings:
       repo: williamchanrico/debugapp
@@ -12,3 +12,16 @@ steps:
         from_secret: DOCKER_USERNAME
       password:
         from_secret: DOCKER_PASSWORD
+
+  - name: ubuntu
+    image: plugins/docker
+    settings:
+      repo: williamchanrico/debugapp
+      tags:
+        - latest-ubuntu1804
+        - 1.0.1-ubuntu1804
+      username:
+        from_secret: DOCKER_USERNAME
+      password:
+        from_secret: DOCKER_PASSWORD
+      dockerfile: Dockerfile.ubuntu-1804
